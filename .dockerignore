@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.git/
+.venv/
+venv/
+env/
+
+downloads/
+outputs/
+New folder/
+
+*.log
+.streamlit/secrets.toml
+backscatter/config_input.json
+coherence/config_input.json

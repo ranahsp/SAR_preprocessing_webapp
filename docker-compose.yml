@@ -1,0 +1,12 @@
+services:
+  sentinel-sar-app:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      SNAP_PYTHON: /root/.snap/snap-python
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
+    volumes:
+      - ./downloads:/app/downloads
+      - ./outputs:/app/outputs
