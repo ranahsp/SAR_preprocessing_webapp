@@ -8,18 +8,22 @@ env/
 # Streamlit / logs
 .streamlit/secrets.toml
 *.log
+.env
 
 # Generated run configuration
 backscatter/config_input.json
 coherence/config_input.json
+tmp/*_config_input.json
 
 # Credentials
-downloads/.earthdata_netrc
+tmp/.earthdata_netrc
 *.netrc
 
 # Downloaded Sentinel products and generated outputs
 downloads/
 outputs/
+logs/
+tmp/
 
 # Local scratch folders
 New folder/

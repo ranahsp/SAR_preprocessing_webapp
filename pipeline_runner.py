@@ -7,8 +7,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parent
+from project_config import ROOT, ensure_runtime_dirs, resolve_project_dir
+from startup_checks import require_startup
 
 
 def write_netrc(username, password, target_dir):
@@ -48,7 +48,7 @@ def pipeline_imports(pipeline_dir):
 
 
 def save_config(pipeline_dir, parameters):
-    config_path = ROOT / pipeline_dir / "config_input.json"
+    config_path = Path(parameters["temp_dir"]) / f"{pipeline_dir}_config_input.json"
     with config_path.open("w", encoding="utf-8") as file:
         json.dump(parameters, file, indent=2)
     print(f"Saved run configuration: {config_path}", flush=True)
@@ -173,26 +173,30 @@ def parse_args():
 
 
 def main():
+    require_startup()
+    runtime_dirs = ensure_runtime_dirs()
     args = parse_args()
-    Path(args.download_dir).mkdir(parents=True, exist_ok=True)
-    Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    netrc_path = write_netrc(args.username, args.password, args.download_dir)
+    download_dir = resolve_project_dir(args.download_dir, "Download directory")
+    output_dir = resolve_project_dir(args.output_dir, "Output directory")
+    temp_dir = runtime_dirs["tmp"]
+    netrc_path = write_netrc(args.username, args.password, temp_dir)
 
     parameters = {
         "subset_wkt": args.wkt,
         "netrc_path": netrc_path,
         "start_date": args.start_date,
         "end_date": args.end_date,
-        "download_dir": args.download_dir,
-        "output_folder_path": args.output_dir,
+        "download_dir": str(download_dir),
+        "output_folder_path": str(output_dir),
+        "temp_dir": str(temp_dir),
         "export_intermediate": False,
         "print_operators": False,
     }
 
     print(f"Running {args.mode} preprocessing", flush=True)
     print(f"Date range: {args.start_date} to {args.end_date}", flush=True)
-    print(f"Download directory: {args.download_dir}", flush=True)
-    print(f"Output directory: {args.output_dir}", flush=True)
+    print(f"Download directory: {download_dir}", flush=True)
+    print(f"Output directory: {output_dir}", flush=True)
 
     if args.mode == "backscatter":
         run_backscatter(parameters)

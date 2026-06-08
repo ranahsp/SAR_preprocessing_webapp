@@ -8,15 +8,15 @@ import time
 import os
 from html import escape
 from datetime import date, timedelta
-from pathlib import Path
 
 import folium
 import streamlit as st
 from folium.plugins import Draw
 from streamlit_folium import st_folium
 
+from project_config import ROOT, ensure_runtime_dirs
+from startup_checks import check_startup
 
-ROOT = Path(__file__).resolve().parent
 EARTHDATA_REGISTER_URL = "https://urs.earthdata.nasa.gov/users/new"
 DEFAULT_WKT = (
     "POLYGON((9.781406838574448 46.14320614003389, "
@@ -280,8 +280,25 @@ def main():
     st.set_page_config(page_title="Sentinel-1 SAR Pipeline", layout="wide")
     inject_page_style()
     init_session_state()
+    try:
+        runtime_dirs = ensure_runtime_dirs()
+    except ValueError as exc:
+        st.error("Runtime directory configuration is invalid.")
+        st.warning(str(exc))
+        st.stop()
 
     st.title("Sentinel-1 SAR Processing")
+    startup_errors = check_startup()
+    if startup_errors:
+        st.error("Startup check failed.")
+        for error in startup_errors:
+            st.warning(error)
+        st.info(
+            "Run this app with the Python environment where your project packages and "
+            "esa_snappy are already configured. ESA SNAP is not installed or configured "
+            "by this application."
+        )
+        st.stop()
 
     with st.sidebar:
         st.header("Authentication")
@@ -290,8 +307,8 @@ def main():
         st.markdown(f"[Create an account]({EARTHDATA_REGISTER_URL})")
 
         st.header("Folders")
-        download_dir = st.text_input("Download Directory", value=str(ROOT / "downloads"))
-        output_dir = st.text_input("Output Directory", value=str(ROOT / "outputs"))
+        download_dir = st.text_input("Download Directory", value=str(runtime_dirs["downloads"].relative_to(ROOT)))
+        output_dir = st.text_input("Output Directory", value=str(runtime_dirs["outputs"].relative_to(ROOT)))
 
         st.header("Time Series")
         default_end = date.today()

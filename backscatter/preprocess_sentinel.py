@@ -1,6 +1,14 @@
 import os
 import sys
-sys.path.append(os.environ.get("SNAP_PYTHON", os.path.expanduser("~/.snap/snap-python")))
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from snap_python import ensure_esa_snappy
+
+ensure_esa_snappy()
 import esa_snappy
 from esa_snappy import ProductIO, GPF, HashMap, jpy
 

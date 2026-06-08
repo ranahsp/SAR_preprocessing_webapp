@@ -2,19 +2,52 @@
 
 Streamlit web app for Sentinel-1 SAR preprocessing with backscatter and coherence workflows.
 
+This project is portable across computers, but it does not install ESA SNAP or configure SNAP-Python integration. Each user must do that in their own local Python environment before running the app.
+
 ## Requirements
 
 - Python 3.9+
-- ESA SNAP Desktop installed
-- ESA SNAPPY configured for the Python environment
+- ESA SNAP Desktop installed by the user
+- `esa_snappy` configured by the user for the same Python environment used to run this app
 - NASA Earthdata / ASF account
-- Enough disk space for Sentinel-1 downloads and outputs
+- Enough disk space for Sentinel-1 downloads and generated products
 
-Install Python dependencies:
+## Configure ESA SNAP
+
+Install ESA SNAP from ESA's official distribution and configure SNAP-Python integration for your local Python environment.
+
+After configuration, verify this works from the project environment:
 
 ```powershell
-pip install -r requirements.txt
+python -c "import esa_snappy; print('esa_snappy OK')"
 ```
+
+If that command fails, the app will also try the current user's common SNAP Python bridge directory, such as `%USERPROFILE%\.snap\snap-python` on Windows or `~/.snap/snap-python` on Linux/macOS. If `esa_snappy` still cannot be imported, fix the ESA SNAP Python integration first. The application startup check will stop with a clear error until `esa_snappy` imports successfully.
+
+## Install Project Dependencies
+
+Create or activate the Python environment you want to use, then install the project packages:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+## Runtime Directories
+
+By default, runtime files are stored inside the project:
+
+- `downloads/` for Sentinel-1 ZIP and SAFE products
+- `outputs/` for generated GeoTIFF products
+- `logs/` for local logs
+- `tmp/` for generated run configuration and temporary Earthdata credentials
+
+Copy `.env.example` to `.env` only if you want to change these project-relative folder names:
+
+```powershell
+copy .env.example .env
+```
+
+Keep the directory values relative to the project folder. The app validates runtime directories so generated files stay inside the project.
 
 ## Run Locally
 
@@ -33,6 +66,8 @@ Then open:
 ```text
 http://localhost:8501
 ```
+
+The app runs a startup check before showing the workflow. It verifies Python, required project dependencies, and `esa_snappy`.
 
 ## Share on the Same Network
 
@@ -54,58 +89,14 @@ Send coworkers this address:
 http://YOUR-IP:8501
 ```
 
-Your computer must stay on and the app must keep running.
+Your computer must stay on and the app must keep running. Coworkers still need their own Earthdata credentials when running their own copy.
 
-## GitHub Notes
+## Docker Note
 
-Do not commit downloaded Sentinel data, generated outputs, logs, cache files, or Earthdata credentials. These are ignored by `.gitignore`.
+The included Dockerfile installs only Python project dependencies. It does not install ESA SNAP or run SNAP-Python configuration.
 
-Each user should enter their own Earthdata credentials in the app.
+Use Docker only if your image/container environment already has a working `esa_snappy` configuration. For most users, running the app locally in the configured Python environment is the recommended path.
 
-## Run With Docker
+## Repository Hygiene
 
-Build the image:
-
-```powershell
-docker build -t sentinel-sar-app .
-```
-
-Run the app:
-
-```powershell
-docker run --rm -p 8501:8501 -v ${PWD}/downloads:/app/downloads -v ${PWD}/outputs:/app/outputs sentinel-sar-app
-```
-
-Then open:
-
-```text
-http://localhost:8501
-```
-
-Or use Docker Compose:
-
-```powershell
-docker compose up --build
-```
-
-The Docker image installs ESA SNAP inside Linux. The first build downloads the SNAP installer, which is large and can take time.
-
-## Publish Docker Image From GitHub
-
-This repository includes a GitHub Actions workflow at:
-
-```text
-.github/workflows/docker-publish.yml
-```
-
-After the code is pushed to the `main` branch, GitHub can build and publish the image to GitHub Container Registry:
-
-```text
-ghcr.io/YOUR-GITHUB-USERNAME/YOUR-REPOSITORY:latest
-```
-
-Coworkers can run the published image with:
-
-```powershell
-docker run --rm -p 8501:8501 -v ${PWD}/downloads:/app/downloads -v ${PWD}/outputs:/app/outputs ghcr.io/YOUR-GITHUB-USERNAME/YOUR-REPOSITORY:latest
-```
+Do not commit downloaded Sentinel data, generated outputs, logs, temporary files, cache files, or Earthdata credentials. These are ignored by `.gitignore`.
