@@ -14,15 +14,48 @@ This project is portable across computers, but it does not install ESA SNAP or c
 
 ## Configure ESA SNAP
 
-Install ESA SNAP from ESA's official distribution and configure SNAP-Python integration for your local Python environment.
+Step 1 — Install ESA SNAP
 
-After configuration, verify this works from the project environment:
+Download and install ESA SNAP from the official ESA website:
 
-```powershell
+https://step.esa.int/main/download/snap-download/
+
+Step 2 — Configure SNAP-Python Integration
+
+Follow the official SNAP Python (esa_snappy) configuration guide:
+
+https://senbox.atlassian.net/wiki/spaces/SNAP/pages/19300362/How+to+use+the+SNAP-Python+snappy+interface
+
+Make sure that esa_snappy is configured for the same Python environment that will be used to run this application.
+
+Step 3 — Verify the Installation
+
+Open a terminal in your Python environment and run:
+
 python -c "import esa_snappy; print('esa_snappy OK')"
-```
 
-If that command fails, the app will also try the current user's common SNAP Python bridge directory, such as `%USERPROFILE%\.snap\snap-python` on Windows or `~/.snap/snap-python` on Linux/macOS. If `esa_snappy` still cannot be imported, fix the ESA SNAP Python integration first. The application startup check will stop with a clear error until `esa_snappy` imports successfully.
+If the command prints:
+
+esa_snappy OK
+
+the configuration is working correctly.
+
+Windows Users
+
+A common SNAP Python bridge location is:
+
+C:\Users\<USERNAME>\.snap\snap-python
+
+If required, add this folder to your Python path before importing esa_snappy.
+
+Example:
+
+import sys
+sys.path.append(r"C:\Users\<USERNAME>\.snap\snap-python")
+
+import esa_snappy
+
+If esa_snappy cannot be imported, the application will stop during startup and display an error message. Resolve the SNAP-Python configuration before running the application.
 
 ## Install Project Dependencies
 
@@ -91,11 +124,7 @@ http://YOUR-IP:8501
 
 Your computer must stay on and the app must keep running. Coworkers still need their own Earthdata credentials when running their own copy.
 
-## Docker Note
 
-The included Dockerfile installs only Python project dependencies. It does not install ESA SNAP or run SNAP-Python configuration.
-
-Use Docker only if your image/container environment already has a working `esa_snappy` configuration. For most users, running the app locally in the configured Python environment is the recommended path.
 
 ## Repository Hygiene
 
