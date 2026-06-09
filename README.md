@@ -14,13 +14,13 @@ This project is portable across computers, but it does not install ESA SNAP or c
 
 ## Configure ESA SNAP
 
-Step 1 — Install ESA SNAP
+## Step 1 — Install ESA SNAP
 
 Download and install ESA SNAP from the official ESA website:
 
 https://step.esa.int/main/download/snap-download/
 
-Step 2 — Configure SNAP-Python Integration
+## Step 2 — Configure SNAP-Python Integration
 
 Follow the official SNAP Python (esa_snappy) configuration guide:
 
@@ -28,33 +28,34 @@ https://senbox.atlassian.net/wiki/spaces/SNAP/pages/19300362/How+to+use+the+SNAP
 
 Make sure that esa_snappy is configured for the same Python environment that will be used to run this application.
 
-Step 3 — Verify the Installation
+## Step 3 — Verify the Installation
 
 Open a terminal in your Python environment and run:
 
+```powershell
 python -c "import esa_snappy; print('esa_snappy OK')"
-
+```
 If the command prints:
-
+```powershell
 esa_snappy OK
-
+```
 the configuration is working correctly.
 
 Windows Users
 
 A common SNAP Python bridge location is:
-
+```powershell
 C:\Users\<USERNAME>\.snap\snap-python
-
+```
 If required, add this folder to your Python path before importing esa_snappy.
 
 Example:
-
+```powershell
 import sys
 sys.path.append(r"C:\Users\<USERNAME>\.snap\snap-python")
 
 import esa_snappy
-
+```
 If esa_snappy cannot be imported, the application will stop during startup and display an error message. Resolve the SNAP-Python configuration before running the application.
 
 ## Install Project Dependencies
